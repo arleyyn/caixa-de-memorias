@@ -8,13 +8,6 @@ import { useEffect, useMemo, useState } from "react";
 const ACCENT = "#D4AF37";
 
 export default function HackPage() {
-  const lines = [
-    "⚠️ Conexão detectada…, Ola sou blitzcrank",
-    "Estou iniciando invasão à Caixa de Memórias…",
-    "Decodificando lembranças…",
-    "Pronto para abrir um atalho secreto?",
-  ];
-
   return (
     <main className="relative grid min-h-dvh place-items-center overflow-hidden text-zinc-200">
       {/* background */}
@@ -34,9 +27,9 @@ export default function HackPage() {
 
 function Typewriter({
   lines,
-  speed = 28, 
+  speed = 28,
   onDone,
-  forceDoneSignal,    
+  forceDoneSignal,
 }: {
   lines: string[];
   speed?: number;
@@ -85,33 +78,15 @@ function Typewriter({
   );
 }
 
-
-
-
-function Blink() {
-  return (
-    <span className="ml-1 inline-block h-4 w-2 translate-y-[2px] animate-pulse bg-zinc-300/80 align-middle" />
-  );
-}
-
 function CornerAssistant() {
   // os três “balões”
   const SCRIPT: string[][] = [
-    [
-      "⚠️ Conexão detectada…",
-      "Iniciando invasão à Caixa de Memórias…",
-    ],
-    [
-      "Decodificando lembranças… 42%",
-      "Ajustando chaves quânticas…",
-    ],
-    [
-      "Pronto para abrir um atalho secreto?",
-      "Toque para confirmar…",
-    ],
+    ["⚠️ Conexão detectada…", "Iniciando invasão à Caixa de Memórias…"],
+    ["Decodificando lembranças… 42%", "Ajustando chaves quânticas…"],
+    ["Pronto para abrir um atalho secreto?", "Toque para confirmar…"],
   ];
 
-  const [step, setStep] = useState(0);       // 0..2
+  const [step, setStep] = useState(0); // 0..2
   const [typingDone, setTypingDone] = useState(false);
   const [forceDone, setForceDone] = useState(false);
 
@@ -167,34 +142,27 @@ function CornerAssistant() {
           />
           <div
             className="pointer-events-none absolute -inset-5 -z-10 rounded-full blur-2xl"
-            style={{ background: `radial-gradient(60% 60% at 50% 50%, ${ACCENT}2a, transparent 70%)` }}
+            style={{
+              background: `radial-gradient(60% 60% at 50% 50%, ${ACCENT}2a, transparent 70%)`,
+            }}
           />
         </motion.div>
 
         {/* Botão “Linha do tempo” depois do 3º balão */}
         {isLast && typingDone && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
             <Link
-            href="/timeline"
-            className="
-                inline-flex items-center rounded-xl 
-                border border-amber-400/60 bg-amber-600/30 
-                px-6 py-3 text-lg font-semibold text-amber-200 
-                hover:bg-amber-500/40 hover:text-amber-100
-                shadow-[0_0_20px_rgba(212,175,55,0.4)]
-                transition-all duration-300
-            "
+              href="/timeline"
+              className="inline-flex items-center rounded-xl border border-amber-400/60 bg-amber-600/30 px-6 py-3 text-lg font-semibold text-amber-200 hover:bg-amber-500/40 hover:text-amber-100 shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all duration-300"
             >
-            Ver linha do tempo →
+              Ver linha do tempo →
             </Link>
-        </div>
+          </div>
         )}
-
       </div>
     </div>
   );
 }
-
 
 function SpeechBubbleRight({
   children,
@@ -208,26 +176,15 @@ function SpeechBubbleRight({
       className="relative w-fit max-w-[min(92vw,560px)] cursor-pointer select-none"
       onClick={onClick}
     >
-      <div
-        className="
-          rounded-[24px] border-[3px] border-[#0f0f10] bg-[#F5F1E9]
-          px-6 py-5 text-[#0f0f10]
-          shadow-[0_10px_24px_rgba(0,0,0,0.35)]
-      "
-      >
+      <div className="rounded-[24px] border-[3px] border-[#0f0f10] bg-[#F5F1E9] px-6 py-5 text-[#0f0f10] shadow-[0_10px_24px_rgba(0,0,0,0.35)]">
         <div className="text-[16px] leading-[1.25] font-semibold tracking-[0.2px]">
           {children}
         </div>
       </div>
       <div
-        className="
-          absolute right-4 -bottom-[8px] h-5 w-5 rotate-45
-          bg-[#F5F1E9] border-b-[3px] border-r-[3px] border-[#0f0f10] rounded-[5px]
-        "
+        className="absolute right-4 -bottom-[8px] h-5 w-5 rotate-45 bg-[#F5F1E9] border-b-[3px] border-r-[3px] border-[#0f0f10] rounded-[5px]"
         aria-hidden
       />
     </div>
   );
 }
-
-

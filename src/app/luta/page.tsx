@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState, useCallback } from "react";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -11,7 +11,7 @@ type Slide = {
   title: string;
   subtitle?: string;
   description?: string;
-  image: string; 
+  image: string;
   accent?: string;
 };
 
@@ -20,7 +20,8 @@ const SLIDES: Slide[] = [
     id: 1,
     title: "Em luta",
     subtitle: "Capítulo 4",
-    description: "Em uma pequena cidade, vivia uma pequena jovem com uma vida simples e comum. Suas preocupações eram como as de qualquer pessoa: escola, hobbies e o futuro que ainda precisava decidir. Mas, de repente, algo mudou. Ela começou a sentir dores constantes: barriga, cabeça, mal-estar. Por mais que cuidasse da alimentação e fizesse tudo certo, o incômodo não a deixava.",
+    description:
+      "Em uma pequena cidade, vivia uma pequena jovem com uma vida simples e comum. Suas preocupações eram como as de qualquer pessoa: escola, hobbies e o futuro que ainda precisava decidir. Mas, de repente, algo mudou. Ela começou a sentir dores constantes: barriga, cabeça, mal-estar. Por mais que cuidasse da alimentação e fizesse tudo certo, o incômodo não a deixava.",
     image: "/luta/slide1.png",
     accent: "#D4AF37",
   },
@@ -28,7 +29,8 @@ const SLIDES: Slide[] = [
     id: 2,
     title: "",
     subtitle: "",
-    description: "Mesmo trabalhando sob alta pressão em fábricas, suportava tudo sozinha. Guardava para si a dor, sem querer preocupar ninguém, sem transformar seu sofrimento em problema para os outros.",
+    description:
+      "Mesmo trabalhando sob alta pressão em fábricas, suportava tudo sozinha. Guardava para si a dor, sem querer preocupar ninguém, sem transformar seu sofrimento em problema para os outros.",
     image: "/luta/slide2.png",
     accent: "#D4AF37",
   },
@@ -36,7 +38,8 @@ const SLIDES: Slide[] = [
     id: 3,
     title: "",
     subtitle: "",
-    description: "Até que, um dia, a situação se agravou. O que antes era suportável se tornou insuportável. Dores intensas, corpo fraco, pele pálida. Ainda assim, ela insistia em manter a rotina, acreditando que iria passar. Mas chegou um ponto em que não havia mais como resistir: precisou buscar ajuda. Depois de muitos processos e diagnósticos, descobriu a origem do problema. A partir dali, sua vida teria de mudar novos hábitos, novas rotinas, e o maior desafio: conviver diariamente com a dor.",
+    description:
+      "Até que, um dia, a situação se agravou. O que antes era suportável se tornou insuportável. Dores intensas, corpo fraco, pele pálida. Ainda assim, ela insistia em manter a rotina, acreditando que iria passar. Mas chegou um ponto em que não havia mais como resistir: precisou buscar ajuda. Depois de muitos processos e diagnósticos, descobriu a origem do problema. A partir dali, sua vida teria de mudar novos hábitos, novas rotinas, e o maior desafio: conviver diariamente com a dor.",
     image: "/luta/slide3.png",
     accent: "#D4AF37",
   },
@@ -44,7 +47,8 @@ const SLIDES: Slide[] = [
     id: 4,
     title: "",
     subtitle: "",
-    description: "Mesmo assim, permaneceu firme. Encontrou forças além de si mesma, reconhecendo que ninguém supera sozinho todos os obstáculos. Sabia que precisaria de apoio e de fé para enfrentar aquela batalha. Alguns sonhos e projetos tiveram de ser adiados, mas nunca esquecidos.",
+    description:
+      "Mesmo assim, permaneceu firme. Encontrou forças além de si mesma, reconhecendo que ninguém supera sozinho todos os obstáculos. Sabia que precisaria de apoio e de fé para enfrentar aquela batalha. Alguns sonhos e projetos tiveram de ser adiados, mas nunca esquecidos.",
     image: "/luta/slide4.png",
     accent: "#D4AF37",
   },
@@ -52,7 +56,8 @@ const SLIDES: Slide[] = [
     id: 5,
     title: "",
     subtitle: "",
-    description: "Com o tempo, as dores se tornaram mais suportáveis. A rotina, antes pesada, ganhou novos respiros. Atividades físicas, que pareciam bem difíceis, voltaram aos poucos. Parecia que a melhora viria. Mas, de repente, tudo mudou de novo: o corpo voltou a falhar, a fraqueza se intensificou, e novos problemas surgiram.",
+    description:
+      "Com o tempo, as dores se tornaram mais suportáveis. A rotina, antes pesada, ganhou novos respiros. Atividades físicas, que pareciam bem difíceis, voltaram aos poucos. Parecia que a melhora viria. Mas, de repente, tudo mudou de novo: o corpo voltou a falhar, a fraqueza se intensificou, e novos problemas surgiram.",
     image: "/luta/slide5.png",
     accent: "#D4AF37",
   },
@@ -60,29 +65,43 @@ const SLIDES: Slide[] = [
     id: 6,
     title: "",
     subtitle: "",
-    description: "Ainda assim, ela buscou tratamento. Aprendeu que a vida sempre trará dificuldades, mas que o essencial é seguir em frente. Descobriu que a força dos braços não é suficiente para vencer dores invisíveis. Somente Deus pode curar, sustentar e renovar as forças.",
+    description:
+      "Ainda assim, ela buscou tratamento. Aprendeu que a vida sempre trará dificuldades, mas que o essencial é seguir em frente. Descobriu que a força dos braços não é suficiente para vencer dores invisíveis. Somente Deus pode curar, sustentar e renovar as forças.",
     image: "/luta/slide6.png",
     accent: "#D4AF37",
   },
-    {
+  {
     id: 7,
     title: "",
     subtitle: "",
-    description: "Mesmo com a rotina alterada, mesmo em meio às dificuldades, ela escolheu acreditar. Sabia que os períodos de dor passariam. Que a cura é possível. E que cuidar da saúde sempre vem antes de qualquer sonho porque sem saúde, não há como alcançar nenhum deles.",
+    description:
+      "Mesmo com a rotina alterada, mesmo em meio às dificuldades, ela escolheu acreditar. Sabia que os períodos de dor passariam. Que a cura é possível. E que cuidar da saúde sempre vem antes de qualquer sonho porque sem saúde, não há como alcançar nenhum deles.",
     image: "/luta/slide7.png",
     accent: "#D4AF37",
   },
 ];
 
-const AUTOPLAY = false;   
-const INTERVAL = 6000;   
-const PERSPECTIVE = 1200;  
-const TRANSITION = 0.65;    
+const AUTOPLAY = false;
+const INTERVAL = 6000;
+const PERSPECTIVE = 1200;
+const TRANSITION = 0.65;
 
 export default function FullscreenCarouselPage() {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
   const length = SLIDES.length;
+
+  const goTo = useCallback(
+    (next: number) => {
+      setIndex((prev) => {
+        const dir: 1 | -1 = next > prev ? 1 : -1;
+        setDirection(dir);
+        const clamped = (next + length) % length;
+        return clamped;
+      });
+    },
+    [length]
+  );
 
   useEffect(() => {
     if (!AUTOPLAY) return;
@@ -90,7 +109,7 @@ export default function FullscreenCarouselPage() {
       goTo(index + 1);
     }, INTERVAL);
     return () => clearInterval(t);
-  }, [index]);
+  }, [index, goTo]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -99,19 +118,15 @@ export default function FullscreenCarouselPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [index]);
+  }, [index, goTo]);
 
-  const goTo = (next: number) => {
-    const clamped = (next + length) % length;
-    setDirection(next > index ? 1 : -1);
-    setIndex(clamped);
-  };
-
-  const dragConfidence = 80; // px
-  const onDragEnd = (_: any, info: { offset: { x: number } }) => {
+  const onDragEnd = (
+    _evt: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
     const dx = info?.offset?.x ?? 0;
-    if (dx < -dragConfidence) goTo(index + 1);
-    else if (dx > dragConfidence) goTo(index - 1);
+    if (dx < -80) goTo(index + 1);
+    else if (dx > 80) goTo(index - 1);
   };
 
   const current = SLIDES[index];
@@ -121,7 +136,6 @@ export default function FullscreenCarouselPage() {
       className="relative min-h-[100svh] overflow-hidden text-zinc-200 bg-black"
       style={{ perspective: `${PERSPECTIVE}px` }}
     >
-
       <AnimatePresence custom={direction} mode="popLayout">
         <motion.section
           key={current.id}
@@ -136,7 +150,6 @@ export default function FullscreenCarouselPage() {
           dragConstraints={{ left: 0, right: 0 }}
           onDragEnd={onDragEnd}
         >
-
           <div className="absolute inset-0 -z-10">
             <Image
               src={current.image}
@@ -146,41 +159,40 @@ export default function FullscreenCarouselPage() {
               sizes="100vw"
               className="object-cover object-center"
             />
-
             <div className="absolute inset-0 bg-black/60" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.08)_0%,transparent_60%)]" />
           </div>
-            <div className="pointer-events-none absolute top-8 left-1/2 z-20 w-full max-w-3xl -translate-x-1/2 px-6 sm:top-10">
+
+          <div className="pointer-events-none absolute top-8 left-1/2 z-20 w-full max-w-3xl -translate-x-1/2 px-6 sm:top-10">
             <div className="pointer-events-auto text-center">
-                {current.subtitle && (
+              {current.subtitle && (
                 <p className="mb-3 text-xs uppercase tracking-[0.25em] text-zinc-300">
-                    {current.subtitle}
+                  {current.subtitle}
                 </p>
-                )}
-                <h1
+              )}
+              <h1
                 className="text-balance text-4xl font-bold sm:text-5xl"
                 style={{ color: current.accent ?? "#D4AF37" }}
-                >
+              >
                 {current.title}
-                </h1>
-                {current.description && (
+              </h1>
+              {current.description && (
                 <p className="mt-4 text-lg leading-relaxed text-zinc-200">
-                    {current.description}
+                  {current.description}
                 </p>
-                )}
+              )}
 
-                {/* Botão só no último slide */}
-               {index === length - 1 && (
-                  <Link
-                    href="/aniversario"
-                    className="mt-6 inline-block rounded-md border border-amber-500/40 bg-black/40 px-4 py-2 text-sm font-medium text-amber-300 backdrop-blur transition hover:bg-black/60"
-                  >
-                    Ir para o aniversário 🎂
-                  </Link>
-                )}
-
+              {/* Botão só no último slide */}
+              {index === length - 1 && (
+                <Link
+                  href="/aniversario"
+                  className="mt-6 inline-block rounded-md border border-amber-500/40 bg-black/40 px-4 py-2 text-sm font-medium text-amber-300 backdrop-blur transition hover:bg-black/60"
+                >
+                  Ir para o aniversário 🎂
+                </Link>
+              )}
             </div>
-            </div>
+          </div>
         </motion.section>
       </AnimatePresence>
 
@@ -194,7 +206,8 @@ export default function FullscreenCarouselPage() {
         count={length}
         index={index}
         setIndex={(i) => {
-          setDirection(i > index ? 1 : -1);
+          const dir: 1 | -1 = i > index ? 1 : -1;
+          setDirection(dir);
           setIndex(i);
         }}
         accent={current.accent}
@@ -217,7 +230,7 @@ const pageTurnVariants = {
     x: 0,
     transformOrigin: "50% 50%",
     filter: "blur(0px)",
-  },
+  }, // ← aqui era "})," (removi o ")")
   exit: (dir: 1 | -1) => ({
     opacity: 0,
     rotateY: 10 * dir,

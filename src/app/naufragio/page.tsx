@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState, useCallback } from "react";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -11,7 +11,7 @@ type Slide = {
   title: string;
   subtitle?: string;
   description?: string;
-  image: string; 
+  image: string;
   accent?: string;
 };
 
@@ -20,7 +20,8 @@ const SLIDES: Slide[] = [
     id: 1,
     title: "Em Profundezas",
     subtitle: "Capítulo 2",
-    description: "Uma jovem sonhadora, fascinada pela imensidão do mar, recebeu a oportunidade de embarcar como tripulante em um navio pirata. Cercada de pessoas desconhecidas e algumas figuras estranhas, preferiu, a princípio, manter-se reservada, com medo e receio de se abrir demais.",
+    description:
+      "Uma jovem sonhadora, fascinada pela imensidão do mar, recebeu a oportunidade de embarcar como tripulante em um navio pirata. Cercada de pessoas desconhecidas e algumas figuras estranhas, preferiu, a princípio, manter-se reservada, com medo e receio de se abrir demais.",
     image: "/naufragio/slide1.png",
     accent: "#D4AF37",
   },
@@ -28,7 +29,8 @@ const SLIDES: Slide[] = [
     id: 2,
     title: "",
     subtitle: "",
-    description: "Com o tempo, no entanto, começou a criar laços. Tornou-se próxima de uma mulher sábia, que lhe ensinou a arte de modelar objetos com matérias-primas simples. A jovem descobriu prazer nesse ofício, dedicando-se cada vez mais à criação. Seu gosto eram os calçados: cada modelo que produzia refletia inovação e criatividade. Logo percebeu que tinha talento e dessa forma decidiu que, ao chegar em terra firme, iria levar aquele gosto de fazer calçados para a vida.",
+    description:
+      "Com o tempo, no entanto, começou a criar laços. Tornou-se próxima de uma mulher sábia, que lhe ensinou a arte de modelar objetos com matérias-primas simples. A jovem descobriu prazer nesse ofício, dedicando-se cada vez mais à criação. Seu gosto eram os calçados: cada modelo que produzia refletia inovação e criatividade. Logo percebeu que tinha talento e dessa forma decidiu que, ao chegar em terra firme, iria levar aquele gosto de fazer calçados para a vida.",
     image: "/naufragio/slide2.png",
     accent: "#D4AF37",
   },
@@ -36,7 +38,8 @@ const SLIDES: Slide[] = [
     id: 3,
     title: "",
     subtitle: "",
-    description: "Mas o mar, antes calmo e tranquilo, começou a mudar. As ondas se tornaram mais violentas, os ventos mais fortes, até que uma tempestade colossal tomou conta do navio. A embarcação virou, e o desespero tomou conta. A jovem lutou com todas as forças para resistir, mas o oceano a arrastava para o profundo e escuro mar. Entre a escuridão e a falta de ar, sua esperança começou a se ir.",
+    description:
+      "Mas o mar, antes calmo e tranquilo, começou a mudar. As ondas se tornaram mais violentas, os ventos mais fortes, até que uma tempestade colossal tomou conta do navio. A embarcação virou, e o desespero tomou conta. A jovem lutou com todas as forças para resistir, mas o oceano a arrastava para o profundo e escuro mar. Entre a escuridão e a falta de ar, sua esperança começou a se ir.",
     image: "/naufragio/slide3.png",
     accent: "#D4AF37",
   },
@@ -44,7 +47,8 @@ const SLIDES: Slide[] = [
     id: 4,
     title: "",
     subtitle: "",
-    description: "Foi nesse momento de quase desistência que tudo mudou. Uma luz intensa rompeu as águas, envolvendo-a.",
+    description:
+      "Foi nesse momento de quase desistência que tudo mudou. Uma luz intensa rompeu as águas, envolvendo-a.",
     image: "/naufragio/slide4.png",
     accent: "#D4AF37",
   },
@@ -52,21 +56,34 @@ const SLIDES: Slide[] = [
     id: 5,
     title: "",
     subtitle: "",
-    description: "Já inconsciente, ela não percebeu como, mas quando abriu os olhos estava em terra firme, em uma cidade desconhecida. Então, entendeu que o naufrágio não havia sido o fim, mas o início de uma nova jornada. Reergueu-se, pegou suas ferramentas e decidiu que aquele seria apenas o primeiro capítulo da grande batalha de sua vida.",
+    description:
+      "Já inconsciente, ela não percebeu como, mas quando abriu os olhos estava em terra firme, em uma cidade desconhecida. Então, entendeu que o naufrágio não havia sido o fim, mas o início de uma nova jornada. Reergueu-se, pegou suas ferramentas e decidiu que aquele seria apenas o primeiro capítulo da grande batalha de sua vida.",
     image: "/naufragio/slide5.png",
     accent: "#D4AF37",
   },
 ];
 
-const AUTOPLAY = false;   
-const INTERVAL = 6000;   
-const PERSPECTIVE = 1200;  
-const TRANSITION = 0.65;    
+const AUTOPLAY = false;
+const INTERVAL = 6000;
+const PERSPECTIVE = 1200;
+const TRANSITION = 0.65;
 
 export default function FullscreenCarouselPage() {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
   const length = SLIDES.length;
+
+  // Memoriza goTo para satisfazer exhaustive-deps
+  const goTo = useCallback(
+    (next: number) => {
+      setIndex((prev) => {
+        const dir: 1 | -1 = next > prev ? 1 : -1;
+        setDirection(dir);
+        return (next + length) % length;
+      });
+    },
+    [length]
+  );
 
   useEffect(() => {
     if (!AUTOPLAY) return;
@@ -74,7 +91,7 @@ export default function FullscreenCarouselPage() {
       goTo(index + 1);
     }, INTERVAL);
     return () => clearInterval(t);
-  }, [index]);
+  }, [index, goTo]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -83,19 +100,16 @@ export default function FullscreenCarouselPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [index]);
+  }, [index, goTo]);
 
-  const goTo = (next: number) => {
-    const clamped = (next + length) % length;
-    setDirection(next > index ? 1 : -1);
-    setIndex(clamped);
-  };
-
-  const dragConfidence = 80; // px
-  const onDragEnd = (_: any, info: { offset: { x: number } }) => {
+  // Tipagem correta para evitar "any"
+  const onDragEnd = (
+    _evt: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
     const dx = info?.offset?.x ?? 0;
-    if (dx < -dragConfidence) goTo(index + 1);
-    else if (dx > dragConfidence) goTo(index - 1);
+    if (dx < -80) goTo(index + 1);
+    else if (dx > 80) goTo(index - 1);
   };
 
   const current = SLIDES[index];
@@ -105,7 +119,6 @@ export default function FullscreenCarouselPage() {
       className="relative min-h-[100svh] overflow-hidden text-zinc-200 bg-black"
       style={{ perspective: `${PERSPECTIVE}px` }}
     >
-
       <AnimatePresence custom={direction} mode="popLayout">
         <motion.section
           key={current.id}
@@ -120,7 +133,6 @@ export default function FullscreenCarouselPage() {
           dragConstraints={{ left: 0, right: 0 }}
           onDragEnd={onDragEnd}
         >
-
           <div className="absolute inset-0 -z-10">
             <Image
               src={current.image}
@@ -130,40 +142,40 @@ export default function FullscreenCarouselPage() {
               sizes="100vw"
               className="object-cover object-center"
             />
-
             <div className="absolute inset-0 bg-black/60" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.08)_0%,transparent_60%)]" />
           </div>
-            <div className="pointer-events-none absolute top-8 left-1/2 z-20 w-full max-w-3xl -translate-x-1/2 px-6 sm:top-10">
+
+          <div className="pointer-events-none absolute top-8 left-1/2 z-20 w-full max-w-3xl -translate-x-1/2 px-6 sm:top-10">
             <div className="pointer-events-auto text-center">
-                {current.subtitle && (
+              {current.subtitle && (
                 <p className="mb-3 text-xs uppercase tracking-[0.25em] text-zinc-300">
-                    {current.subtitle}
+                  {current.subtitle}
                 </p>
-                )}
-                <h1
+              )}
+              <h1
                 className="text-balance text-4xl font-bold sm:text-5xl"
                 style={{ color: current.accent ?? "#D4AF37" }}
-                >
+              >
                 {current.title}
-                </h1>
-                {current.description && (
+              </h1>
+              {current.description && (
                 <p className="mt-4 text-lg leading-relaxed text-zinc-200">
-                    {current.description}
+                  {current.description}
                 </p>
-                )}
+              )}
 
-                {/* Botão só no último slide */}
-                {index === length - 1 && (
+              {/* Botão só no último slide */}
+              {index === length - 1 && (
                 <Link
-                    href="/timeline"
-                    className="mt-6 inline-block rounded-md border border-amber-500/40 bg-black/40 px-4 py-2 text-sm font-medium text-amber-300 backdrop-blur transition hover:bg-black/60"
+                  href="/timeline"
+                  className="mt-6 inline-block rounded-md border border-amber-500/40 bg-black/40 px-4 py-2 text-sm font-medium text-amber-300 backdrop-blur transition hover:bg-black/60"
                 >
-                    ← Voltar para a timeline
+                  ← Voltar para a timeline
                 </Link>
-                )}
+              )}
             </div>
-            </div>
+          </div>
         </motion.section>
       </AnimatePresence>
 
@@ -177,7 +189,8 @@ export default function FullscreenCarouselPage() {
         count={length}
         index={index}
         setIndex={(i) => {
-          setDirection(i > index ? 1 : -1);
+          const dir: 1 | -1 = i > index ? 1 : -1;
+          setDirection(dir);
           setIndex(i);
         }}
         accent={current.accent}

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState, useCallback } from "react";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -11,7 +11,7 @@ type Slide = {
   title: string;
   subtitle?: string;
   description?: string;
-  image: string; 
+  image: string;
   accent?: string;
 };
 
@@ -20,7 +20,8 @@ const SLIDES: Slide[] = [
     id: 1,
     title: "Em busca da ascensão ",
     subtitle: "Capítulo 1",
-    description: "Em uma época em que a tecnologia avançava rapidamente e o mundo estava em constante mudança cobrança ainda mais presente surgiu a pandemia onde mudou toda a rotina e forma como as pessoas viviam, e no meio disso havia uma jovem mulher no ensino médio ainda confusa sobre os rumos da vida. Além de amar música e tocar teclado, ela descobriu um hobbie que a fascinava: jogar Dota 2. Mas, em meio a esse caminho, encontrou outro jogo mecanicamente inferior ao Dota, mas igualmente viciante o famoso League of Legends.",
+    description:
+      "Em uma época em que a tecnologia avançava rapidamente e o mundo estava em constante mudança cobrança ainda mais presente surgiu a pandemia onde mudou toda a rotina e forma como as pessoas viviam, e no meio disso havia uma jovem mulher no ensino médio ainda confusa sobre os rumos da vida. Além de amar música e tocar teclado, ela descobriu um hobbie que a fascinava: jogar Dota 2. Mas, em meio a esse caminho, encontrou outro jogo mecanicamente inferior ao Dota, mas igualmente viciante o famoso League of Legends.",
     image: "/ascesao/slide1.png",
     accent: "#D4AF37",
   },
@@ -28,7 +29,8 @@ const SLIDES: Slide[] = [
     id: 2,
     title: "",
     subtitle: "",
-    description: "A cada partida se tornava uma oportunidade de crescimento. Aos poucos, ela foi aprimorando sua teoria e suas mecânicas, percebendo que poderia transformar aquele passatempo, inicialmente uma válvula de escape da pressão da vida, escola e uma forma de se divertir e talvez levar isso como profissão.",
+    description:
+      "A cada partida se tornava uma oportunidade de crescimento. Aos poucos, ela foi aprimorando sua teoria e suas mecânicas, percebendo que poderia transformar aquele passatempo, inicialmente uma válvula de escape da pressão da vida, escola e uma forma de se divertir e talvez levar isso como profissão.",
     image: "/ascesao/slide2.png",
     accent: "#D4AF37",
   },
@@ -36,7 +38,8 @@ const SLIDES: Slide[] = [
     id: 3,
     title: "",
     subtitle: "",
-    description: "No entanto, pelo caminho, conheceu pessoas que se tornaram amigos. O foco deixou de ser apenas a própria evolução: ela passou a ajudar os outros, acreditando que poderiam crescer juntos. Mas logo percebeu que nem todos progridem na mesma velocidade, e muitas da vezes permaneceram estagnados, tornando a tarefa mais difícil do que imaginava.",
+    description:
+      "No entanto, pelo caminho, conheceu pessoas que se tornaram amigos. O foco deixou de ser apenas a própria evolução: ela passou a ajudar os outros, acreditando que poderiam crescer juntos. Mas logo percebeu que nem todos progridem na mesma velocidade, e muitas da vezes permaneceram estagnados, tornando a tarefa mais difícil do que imaginava.",
     image: "/ascesao/slide3.png",
     accent: "#D4AF37",
   },
@@ -44,7 +47,8 @@ const SLIDES: Slide[] = [
     id: 4,
     title: "",
     subtitle: "",
-    description: "Um dia, surgiu a grande oportunidade: transformar o hobbie em carreira, alcançar o nível competitivo e talvez estar mais perto de se tornar o hobbie em uma profissão e ter um hobbie como profissão. Sabia que tinha potencial e que conseguiria alcançar e melhorar com o tempo. Porém, levou consigo os amigos para a mesma prova, mas no final não conseguiu conquistar a vaga e se frustrou.",
+    description:
+      "Um dia, surgiu a grande oportunidade: transformar o hobbie em carreira, alcançar o nível competitivo e talvez estar mais perto de se tornar o hobbie em uma profissão e ter um hobbie como profissão. Sabia que tinha potencial e que conseguiria alcançar e melhorar com o tempo. Porém, levou consigo os amigos para a mesma prova, mas no final não conseguiu conquistar a vaga e se frustrou.",
     image: "/ascesao/slide4.png",
     accent: "#D4AF37",
   },
@@ -52,21 +56,35 @@ const SLIDES: Slide[] = [
     id: 5,
     title: "",
     subtitle: "",
-    description: "Foi então que percebeu algo importante: o jogo, que antes era diversão, havia se tornado estressante. A verdadeira vitória não estava em jogar e melhorar cada vez mais e tornar daquilo uma profissão e sim em valorizar as amizades construídas no caminho. Descobriu que, mais do que a competição, o que realmente fazia sentido eram as conexões criadas e os momentos compartilhados.",
+    description:
+      "Foi então que percebeu algo importante: o jogo, que antes era diversão, havia se tornado estressante. A verdadeira vitória não estava em jogar e melhorar cada vez mais e tornar daquilo uma profissão e sim em valorizar as amizades construídas no caminho. Descobriu que, mais do que a competição, o que realmente fazia sentido eram as conexões criadas e os momentos compartilhados.",
     image: "/ascesao/slide5.png",
     accent: "#D4AF37",
   },
 ];
 
-const AUTOPLAY = false;   
-const INTERVAL = 6000;   
-const PERSPECTIVE = 1200;  
-const TRANSITION = 0.65;    
+const AUTOPLAY = false;
+const INTERVAL = 6000;
+const PERSPECTIVE = 1200;
+const TRANSITION = 0.65;
 
 export default function FullscreenCarouselPage() {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
   const length = SLIDES.length;
+
+  // goTo memorizada para satisfazer exhaustive-deps sem usar "any"
+  const goTo = useCallback(
+    (next: number) => {
+      setIndex((prev) => {
+        const dir: 1 | -1 = next > prev ? 1 : -1;
+        setDirection(dir);
+        const clamped = (next + length) % length;
+        return clamped;
+      });
+    },
+    [length]
+  );
 
   useEffect(() => {
     if (!AUTOPLAY) return;
@@ -74,7 +92,7 @@ export default function FullscreenCarouselPage() {
       goTo(index + 1);
     }, INTERVAL);
     return () => clearInterval(t);
-  }, [index]);
+  }, [index, goTo]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -83,19 +101,16 @@ export default function FullscreenCarouselPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [index]);
+  }, [index, goTo]);
 
-  const goTo = (next: number) => {
-    const clamped = (next + length) % length;
-    setDirection(next > index ? 1 : -1);
-    setIndex(clamped);
-  };
-
-  const dragConfidence = 80; // px
-  const onDragEnd = (_: any, info: { offset: { x: number } }) => {
+  // Tipagem correta do onDragEnd (sem any)
+  const onDragEnd = (
+    _evt: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
     const dx = info?.offset?.x ?? 0;
-    if (dx < -dragConfidence) goTo(index + 1);
-    else if (dx > dragConfidence) goTo(index - 1);
+    if (dx < -80) goTo(index + 1);
+    else if (dx > 80) goTo(index - 1);
   };
 
   const current = SLIDES[index];
@@ -105,7 +120,6 @@ export default function FullscreenCarouselPage() {
       className="relative min-h-[100svh] overflow-hidden text-zinc-200 bg-black"
       style={{ perspective: `${PERSPECTIVE}px` }}
     >
-
       <AnimatePresence custom={direction} mode="popLayout">
         <motion.section
           key={current.id}
@@ -120,7 +134,6 @@ export default function FullscreenCarouselPage() {
           dragConstraints={{ left: 0, right: 0 }}
           onDragEnd={onDragEnd}
         >
-
           <div className="absolute inset-0 -z-10">
             <Image
               src={current.image}
@@ -134,36 +147,37 @@ export default function FullscreenCarouselPage() {
             <div className="absolute inset-0 bg-black/60" />
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.08)_0%,transparent_60%)]" />
           </div>
-            <div className="pointer-events-none absolute top-8 left-1/2 z-20 w-full max-w-3xl -translate-x-1/2 px-6 sm:top-10">
+
+          <div className="pointer-events-none absolute top-8 left-1/2 z-20 w-full max-w-3xl -translate-x-1/2 px-6 sm:top-10">
             <div className="pointer-events-auto text-center">
-                {current.subtitle && (
+              {current.subtitle && (
                 <p className="mb-3 text-xs uppercase tracking-[0.25em] text-zinc-300">
-                    {current.subtitle}
+                  {current.subtitle}
                 </p>
-                )}
-                <h1
+              )}
+              <h1
                 className="text-balance text-4xl font-bold sm:text-5xl"
                 style={{ color: current.accent ?? "#D4AF37" }}
-                >
+              >
                 {current.title}
-                </h1>
-                {current.description && (
+              </h1>
+              {current.description && (
                 <p className="mt-4 text-lg leading-relaxed text-zinc-200">
-                    {current.description}
+                  {current.description}
                 </p>
-                )}
+              )}
 
-                {/* Botão só no último slide */}
-                {index === length - 1 && (
+              {/* Botão só no último slide */}
+              {index === length - 1 && (
                 <Link
-                    href="/timeline"
-                    className="mt-6 inline-block rounded-md border border-amber-500/40 bg-black/40 px-4 py-2 text-sm font-medium text-amber-300 backdrop-blur transition hover:bg-black/60"
+                  href="/timeline"
+                  className="mt-6 inline-block rounded-md border border-amber-500/40 bg-black/40 px-4 py-2 text-sm font-medium text-amber-300 backdrop-blur transition hover:bg-black/60"
                 >
-                    ← Voltar para a timeline
+                  ← Voltar para a timeline
                 </Link>
-                )}
+              )}
             </div>
-            </div>
+          </div>
         </motion.section>
       </AnimatePresence>
 
@@ -177,7 +191,9 @@ export default function FullscreenCarouselPage() {
         count={length}
         index={index}
         setIndex={(i) => {
-          setDirection(i > index ? 1 : -1);
+          // atualiza direção visual conforme o alvo
+          const dir: 1 | -1 = i > index ? 1 : -1;
+          setDirection(dir);
           setIndex(i);
         }}
         accent={current.accent}
